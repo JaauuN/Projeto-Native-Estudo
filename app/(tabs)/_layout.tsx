@@ -20,7 +20,7 @@ export default function TabLayout() {
         },
       }}>
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
           title:"Início",
           headerShown: false,
@@ -28,11 +28,27 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="busca"
         options={{
-          title:"Loja",
+          title:"Busca",
           headerShown: false,
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="magnifyingglass.circle.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+      name="chat"
+        options={{
+          title:"Chat",
+          headerShown: false,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="message.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+      name="profile"
+        options={{
+          title:"Profile",
+          headerShown: false,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
         }}
       />
     </Tabs>

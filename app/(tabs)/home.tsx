@@ -6,7 +6,7 @@ import { Button, Text, Searchbar } from 'react-native-paper';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Colors } from '@/constants/theme';
 
-export default function App() {
+export default function Home() {
   const [item, setItem] = useState('');
   const [lista, setLista] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
