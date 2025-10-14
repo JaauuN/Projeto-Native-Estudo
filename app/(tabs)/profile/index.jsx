@@ -5,7 +5,7 @@ export default function Profile() {
 return (
 
     <ThemedView style={styles.container} >
-        <ThemedText>Mundo</ThemedText>
+        <ThemedText>Coming Soon...</ThemedText>
     </ThemedView>
 );
 

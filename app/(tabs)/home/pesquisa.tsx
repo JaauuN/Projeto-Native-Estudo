@@ -1,18 +1,20 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { StyleSheet } from 'react-native';
-export default function Chat() {
-return (
 
+export default function DetailsScreen() {
+  return (
     <ThemedView style={styles.container}>
-        <ThemedText>Ola</ThemedText>
+      <ThemedText type="title">Detalhes</ThemedText>
     </ThemedView>
-)
-
-
-};
+  );
+}
 
 const styles = StyleSheet.create({
-    container: { flex: 1, justifyContent: 'center',alignItems: 'center', height: '100%', },
-
+  container: { 
+    flex: 1, 
+    justifyContent: 'center',
+    alignItems: 'center', 
+    padding: 20
+  },
 });
