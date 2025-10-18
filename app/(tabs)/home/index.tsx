@@ -1,94 +1,302 @@
 import React, { useState } from 'react';
 
 import { ThemedText } from '@/components/themed-text';
-import { ThemedTextInput } from '@/components/themed-textinput';
 import { ThemedView } from '@/components/themed-view';
 
 import { router } from 'expo-router';
-import { FlatList, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { Button, Searchbar, Text } from 'react-native-paper';
+
+import { Dimensions, FlatList, Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Searchbar } from 'react-native-paper';
+
+import { useSharedValue } from "react-native-reanimated";
+import Carousel, {
+  ICarouselInstance,
+
+  Pagination,
+} from "react-native-reanimated-carousel";
+
+
+const width = Dimensions.get('window').width;
+const anuncios = [
+  { id: '1', image: require('@/assets/images/react-logo.png') },
+  { id: '2', image: require('@/assets/images/react-logo.png') },
+  { id: '3', image: require('@/assets/images/react-logo.png') },
+  { id: '4', image: require('@/assets/images/react-logo.png') }
+];
+
+const lojas = [
+  { id: '1', title: 'Loja 1',image: require('@/assets/images/icon.png') },
+  { id: '2', title: 'Loja 2',image: require('@/assets/images/icon.png') },
+  { id: '3', title: 'Loja 3',image: require('@/assets/images/icon.png') },
+  { id: '4', title: 'Loja 4',image: require('@/assets/images/icon.png') },
+  { id: '5', title: 'Loja 5',image: require('@/assets/images/icon.png') },
+  { id: '6', title: 'Loja 6',image: require('@/assets/images/icon.png') },
+];
+
+const categorias = [
+  { id: '1', categorias: 'tudo', title: 'Tudo', image: require('@/assets/images/Geral-Rem.png') },
+  { id: '2', categorias: 'analgesicos', title: 'Analgesicos', image: require('@/assets/images/Analge.png') },
+  { id: '3', categorias: 'antinflamatorios', title: 'Anti-Inflamatorios', image: require('@/assets/images/Anti-Ale.png') },
+  { id: '4', categorias: 'antialergicos', title: 'Anti-Alergicos', image: require('@/assets/images/Anti-Inf.png') },
+];
+
+const LojaItem = ({ image, title }: { image: number, title: string }) => (
+  <TouchableOpacity style={[styles.lojasContainer]}>
+    <Image source={image} style={styles.lojasImage}/>
+    <ThemedText style={styles.lojasTitle}>{title}</ThemedText>
+  </TouchableOpacity>
+);
+
+const telaPesquisa = () => {
+  router.push('/home/pesquisa');
+
+};
+
 
 export default function Home() {
-  const [item, setItem] = useState('');
-  const [lista, setLista] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const ref = React.useRef<ICarouselInstance>(null);
+  const progress = useSharedValue<number>(0);
 
-  // Função para adicionar item
-  const adicionarItem = () => {
-    if (item.trim() === '') return;
-    setLista([...lista, { id: Date.now().toString(), nome: item }]);
-    setItem('');
+  const onPressPagination = (index: number) => {
+    ref.current?.scrollTo({
+      count: index - progress.value,
+      animated: true,
+    });
+
   };
 
-  // Função para remover item
-  const removerItem = (id) => {
-    setLista(lista.filter((el) => el.id !== id));
-  };
 
-  const telaPesquisa = () => {
-    router.push('/home/pesquisa');
-  };
-  
+
   return (
+
     <ThemedView style={styles.container}>
+      <View style={styles.sombraBarrasuperior} pointerEvents="none" />
       <ThemedView style={styles.containerNav}>
-        <Searchbar 
-            style={[styles.nav, {backgroundColor:'#fff'}]}
-            placeholder="Busca"
-            onChangeText={setSearchQuery}
-            value={searchQuery}
-            inputStyle={{ 
-              color: '#000000ff', 
-              paddingVertical: 0, 
-              minHeight: 0, 
-              fontSize:14 }} 
-            iconColor='#000000ff'
-             theme={
-              { colors: {
+        <Searchbar
+          style={[styles.nav, { backgroundColor: '#fff' }]}
+          placeholder="Busca"
+          onChangeText={setSearchQuery}
+          value={searchQuery}
+          onPress={telaPesquisa}
+          inputStyle={{
+            color: '#000000ff',
+            paddingVertical: 0,
+            minHeight: 0,
+            fontSize: 14
+          }}
+          iconColor='#000000ff'
+          theme={
+            {
+              colors: {
                 primary: '#3F72AF',
                 onSurface: '#9BA1A6',
-              } }
-
-            } 
-          />
+              }
+            }
+          }
+        />
       </ThemedView>
-        
-      <ScrollView style={styles.containerContent}>
-         <ThemedView> 
-            <ThemedText style={styles.titulo}>🛒 Lista de Compras</ThemedText>
-            <ThemedTextInput
-              placeholder="Digite um item..."
-              value={item}
-              onChangeText={setItem}>
-            </ThemedTextInput>
-              
-          <Button mode="contained" onPress={adicionarItem} buttonColor='#3F72AF' textColor='#fff'>
-            Adicionar
-          </Button>
 
-          <FlatList
-            style={styles.lista}
-            data={lista}
-            keyExtractor={(el) => el.id}
+  <ScrollView directionalLockEnabled={true}>
+        <View style={styles.carouselContainer}>
+          {/*https://rn-carousel.dev/usage*/}
+          <Carousel
+            ref={ref}
+            width={width}
+            height={width / 2}
+            data={anuncios}
+            loop
+            autoPlay
+            autoPlayInterval={5000}
+            mode="parallax"
+            onProgressChange={progress}
             renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => removerItem(item.id)} style={styles.item} activeOpacity={0.5}>
-                <Text style={{ color: '#000000ff' }}>{item.nome}</Text>
-              </TouchableOpacity>
+              <View style={styles.anuncioContainer}>
+                <Image source={item.image} style={styles.anuncioImage} resizeMode="contain" />
+              </View>
             )}
           />
+          <Pagination.Basic
+            progress={progress}
+            data={anuncios}
+            dotStyle={{ backgroundColor: "rgba(0,0,0,0.2)", borderRadius: 50 }}
+            containerStyle={{ gap: 3, marginTop: 1, marginBottom: 10 }}
+            onPress={onPressPagination}
+          />
+        </View>
+        
+        <ThemedView style={styles.containerContent}>
+          <ThemedText style={styles.titulo}>Lojas Perto de Você</ThemedText>
+          <FlatList
+            data={lojas}
+            keyExtractor={item => item.id}
+            horizontal
+            renderItem={({ item }) => (<LojaItem image={item.image} title={item.title}/>)}
+            showsHorizontalScrollIndicator={false}
+            nestedScrollEnabled
+            
+          />
+        </ThemedView>
+
+        <ThemedView style={styles.containerContent}>
+          <ThemedText style={styles.titulo}>Categorias</ThemedText>
+          <FlatList
+            data={categorias}
+            keyExtractor={item => item.id}
+            horizontal
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.containerCategoria}
+                onPress={() => router.push(`/home/categorias-remedios/${item.categorias}`)}
+              >
+              <Image source={item.image} style={styles.imagemCategoria} />
+              <ThemedText style={styles.tituloCategoria}>{item.title}</ThemedText>
+            </TouchableOpacity>
+              )}
+            contentContainerStyle={{ alignItems: 'center', justifyContent: 'space-between', width: '100%',padding:5 }}
+          />
+        </ThemedView>
+        <ThemedView style={styles.containerContent}>
+          <View style={styles.sobrenosContainer}>
+            <Image source={require('@/assets/images/Promo-G.png')} style={styles.sobrenosImage} resizeMode="cover"/>
+          </View>
         </ThemedView>
       </ScrollView>
+
     </ThemedView>
   );
+
 }
 
+
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center',alignItems: 'center'},
-  containerContent: { width: '100%',},
-  titulo: { marginTop: 20,fontSize: 24, fontWeight: 'bold', marginBottom: 30, textAlign: 'center'},
-  input: { borderWidth: 1, padding: 8 ,marginBottom: 10, borderRadius: 10},
-  lista: { marginTop: 20},
-  item: {padding: 130,fontSize: 18,borderColor:'#3F72AF',borderWidth: 2 ,backgroundColor:'#fff',borderRadius:150,margin:3,},
-  nav: {height: 40 ,width:'80%', borderRadius:25, justifyContent: 'center', top:20},
-  containerNav:{height:'12%', width:'100%',backgroundColor:'#112D4E', justifyContent: 'center',alignItems: 'center'}
-});
+  container: {
+    flex: 1,
+    
+  },
+
+  containerNav: {
+    backgroundColor: '#19535F',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 50,
+    paddingBottom: 20,
+  },
+  nav: {
+    height: 40,
+    width: '90%',
+    borderRadius: 25,
+    backgroundColor: '#000000ff',
+
+  },
+
+  containerContent: {
+    width: '100%',
+    marginBottom: 20,
+  },
+
+  carouselContainer: {
+    alignItems: 'center',
+  },
+
+  anuncioContainer: {
+    width: '100%',
+    flex: 1,
+    borderRadius: 25,
+    backgroundColor: '#E6E6E6',
+    alignSelf: 'center',
+  },
+  anuncioImage: {
+    width: '100%',
+    height: '100%',
+  },
+
+  lojasContainer: {
+    width: 90, 
+    alignItems: 'center',
+    backgroundColor: '#E6E6E6',
+    padding: 5,
+    gap: 5,
+    borderRadius: 12,
+    marginRight: 10,
+    marginBottom: 10,
+    left: 5,
+    // SOMBRAS
+    shadowColor: '#000000ff',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  lojasImage: {
+    height: 70,
+    width: 70,
+    borderRadius: 100,
+  },
+  lojasTitle: {
+    fontSize: 12,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    color: '#000000ff',
+    
+  },
+
+  containerCategoria: {
+    width: 90,
+    height: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#E6E6E6',
+    borderRadius: 12,
+     marginBottom: 6,
+    // SOMBRAS
+    shadowColor: '#000000ff',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  imagemCategoria: {
+    width: 50,
+    height: 50,
+    overflow: 'hidden',
+  },
+  tituloCategoria: {
+    fontSize: 9,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    color: '#000000ff',
+    
+  },
+  
+  sobrenosContainer: {
+    width: '100%',
+    alignItems: 'center',
+    alignSelf: 'center',
+  },
+  sobrenosImage: {
+    width: '95%',
+    height: 160,
+    borderRadius: 12,
+    alignSelf: 'center',
+  },
+
+  titulo: {
+    fontSize: 21,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    left: 5,
+
+  },
+  sombraBarrasuperior: {
+    position: 'absolute',
+    top: 110,
+    left: 0,
+    right: 0,
+    height: 3,
+    backgroundColor: '#19535F',
+    opacity: 0.8,
+    zIndex: 0,
+  },
+
+}); 
