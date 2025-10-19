@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Colors } from '@/constants/theme';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -9,11 +11,7 @@ import { Dimensions, FlatList, Image, ScrollView, StyleSheet, TouchableOpacity, 
 import { Searchbar } from 'react-native-paper';
 
 import { useSharedValue } from "react-native-reanimated";
-import Carousel, {
-  ICarouselInstance,
-
-  Pagination,
-} from "react-native-reanimated-carousel";
+import Carousel, { ICarouselInstance, Pagination, } from "react-native-reanimated-carousel";
 
 
 const width = Dimensions.get('window').width;
@@ -25,38 +23,30 @@ const anuncios = [
 ];
 
 const lojas = [
-  { id: '1', title: 'Loja 1',image: require('@/assets/images/icon.png') },
-  { id: '2', title: 'Loja 2',image: require('@/assets/images/icon.png') },
-  { id: '3', title: 'Loja 3',image: require('@/assets/images/icon.png') },
-  { id: '4', title: 'Loja 4',image: require('@/assets/images/icon.png') },
-  { id: '5', title: 'Loja 5',image: require('@/assets/images/icon.png') },
-  { id: '6', title: 'Loja 6',image: require('@/assets/images/icon.png') },
+  { id: '1', title: 'Pague Menos',image: require('@/assets/farmacias/pague-menos.png') },
+  { id: '2', title: 'Drogasil',image: require('@/assets/farmacias/drogasil.png') },
+  { id: '3', title: 'Extrafarma',image: require('@/assets/farmacias/extrafarma.png') },
+  { id: '4', title: 'Farmácia Popular',image: require('@/assets/farmacias/popular.png') },
+  { id: '5', title: 'Economia Farma',image: require('@/assets/farmacias/economia.png') },
+  { id: '6', title: 'Farmacenter',image: require('@/assets/farmacias/farmacenter.png') },
 ];
 
 const categorias = [
-  { id: '1', categorias: 'tudo', title: 'Tudo', image: require('@/assets/images/Geral-Rem.png') },
-  { id: '2', categorias: 'analgesicos', title: 'Analgesicos', image: require('@/assets/images/Analge.png') },
-  { id: '3', categorias: 'antinflamatorios', title: 'Anti-Inflamatorios', image: require('@/assets/images/Anti-Ale.png') },
-  { id: '4', categorias: 'antialergicos', title: 'Anti-Alergicos', image: require('@/assets/images/Anti-Inf.png') },
+  { id: '1', categorias: 'Tudo', title: 'Tudo', image: require('@/assets/images/Geral-Rem.png') },
+  { id: '2', categorias: 'Analgésicos', title: 'Analgésicos', image: require('@/assets/images/Analge.png') },
+  { id: '3', categorias: 'Anti-inflamatórios', title: 'Anti-inflamatórios', image: require('@/assets/images/Anti-Ale.png') },
+  { id: '4', categorias: 'Anti-alérgicos', title: 'Anti-alérgicos', image: require('@/assets/images/Anti-Inf.png') },
 ];
-
-const LojaItem = ({ image, title }: { image: number, title: string }) => (
-  <TouchableOpacity style={[styles.lojasContainer]}>
-    <Image source={image} style={styles.lojasImage}/>
-    <ThemedText style={styles.lojasTitle}>{title}</ThemedText>
-  </TouchableOpacity>
-);
 
 const telaPesquisa = () => {
   router.push('/home/pesquisa');
-
 };
-
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const ref = React.useRef<ICarouselInstance>(null);
   const progress = useSharedValue<number>(0);
+  const colorScheme = useColorScheme();
 
   const onPressPagination = (index: number) => {
     ref.current?.scrollTo({
@@ -66,36 +56,35 @@ export default function Home() {
 
   };
 
-
-
   return (
 
     <ThemedView style={styles.container}>
       <View style={styles.sombraBarrasuperior} pointerEvents="none" />
-      <ThemedView style={styles.containerNav}>
-        <Searchbar
-          style={[styles.nav, { backgroundColor: '#fff' }]}
-          placeholder="Busca"
-          onChangeText={setSearchQuery}
-          value={searchQuery}
-          onPress={telaPesquisa}
-          inputStyle={{
-            color: '#000000ff',
-            paddingVertical: 0,
-            minHeight: 0,
-            fontSize: 14
-          }}
-          iconColor='#000000ff'
-          theme={
-            {
-              colors: {
-                primary: '#3F72AF',
-                onSurface: '#9BA1A6',
+        <ThemedView style={styles.containerNav}>
+          <Image source={require('@/assets/images/Cure+.png')} style={styles.logo} />
+          <Searchbar
+            style={[styles.nav, { backgroundColor: '#fff' }]}
+            placeholder="Busca"
+            onChangeText={setSearchQuery}
+            value={searchQuery}
+            onPress={telaPesquisa}
+            inputStyle={{
+              color: '#000000ff',
+              paddingVertical: 0,
+              minHeight: 0,
+              fontSize: 14
+            }}
+            iconColor='#000000ff'
+            theme={
+              {
+                colors: {
+                  primary: '#3F72AF',
+                  onSurface: '#9BA1A6',
+                }
               }
             }
-          }
-        />
-      </ThemedView>
+          />
+        </ThemedView>
 
   <ScrollView directionalLockEnabled={true}>
         <View style={styles.carouselContainer}>
@@ -119,22 +108,28 @@ export default function Home() {
           <Pagination.Basic
             progress={progress}
             data={anuncios}
-            dotStyle={{ backgroundColor: "rgba(0,0,0,0.2)", borderRadius: 50 }}
-            containerStyle={{ gap: 3, marginTop: 1, marginBottom: 10 }}
+            dotStyle={{ backgroundColor: Colors[colorScheme ?? 'light'].dotBack, borderRadius: 50 }}
+            activeDotStyle={{ backgroundColor: Colors[colorScheme ?? 'light'].dotActive, borderRadius: 50 }}
+            containerStyle={{ gap: 6, marginBottom: 10 }}
             onPress={onPressPagination}
           />
         </View>
         
         <ThemedView style={styles.containerContent}>
-          <ThemedText style={styles.titulo}>Lojas Perto de Você</ThemedText>
+          <ThemedText style={styles.titulo}>Lojas Parceiras</ThemedText>
           <FlatList
             data={lojas}
             keyExtractor={item => item.id}
             horizontal
-            renderItem={({ item }) => (<LojaItem image={item.image} title={item.title}/>)}
+            renderItem={({ item }) => (
+                 <TouchableOpacity style={[styles.lojasContainer]}>
+                    <View style={[styles.imageContainer, item.id === '6' && styles.lojaespecial]}>
+                      <Image source={item.image} style={styles.lojasImage} resizeMode='center'/>
+                    </View>
+                  <ThemedText style={styles.lojasTitle}>{item.title}</ThemedText>
+                </TouchableOpacity>
+            )}
             showsHorizontalScrollIndicator={false}
-            nestedScrollEnabled
-            
           />
         </ThemedView>
 
@@ -168,18 +163,20 @@ export default function Home() {
 
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     
   },
-
+  containerContent: {
+    width: '100%',
+    marginBottom: 20,
+  },
   containerNav: {
     backgroundColor: '#19535F',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 50,
+    paddingTop: 60,
     paddingBottom: 20,
   },
   nav: {
@@ -187,24 +184,32 @@ const styles = StyleSheet.create({
     width: '90%',
     borderRadius: 25,
     backgroundColor: '#000000ff',
-
   },
-
-  containerContent: {
-    width: '100%',
-    marginBottom: 20,
+  logo: {
+    position: 'absolute',
+    top: 30,
+    left: 0,
+    width: 120,
+    height: 25,
+    marginBottom: 15,
   },
+  
 
   carouselContainer: {
     alignItems: 'center',
   },
-
   anuncioContainer: {
     width: '100%',
     flex: 1,
     borderRadius: 25,
     backgroundColor: '#E6E6E6',
     alignSelf: 'center',
+    // SOMBRAS
+    shadowColor: '#000000ff',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 6,
   },
   anuncioImage: {
     width: '100%',
@@ -228,17 +233,35 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 6,
   },
-  lojasImage: {
-    height: 70,
-    width: 70,
+  imageContainer: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 80,
+    width: 80,
+    borderColor: '#dadadaff',
+    borderWidth: 2,
     borderRadius: 100,
+    overflow: 'hidden',
+    // SOMBRAS
+    shadowColor: '#000000ff',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+  },
+  lojasImage: {
+    position: 'absolute',
+    height: 80,
+    width: 80,
   },
   lojasTitle: {
     fontSize: 12,
     textAlign: 'center',
     fontWeight: 'bold',
     color: '#000000ff',
-    
+  },
+  lojaespecial: {
+    backgroundColor: '#044c9b',
   },
 
   containerCategoria: {
@@ -262,7 +285,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   tituloCategoria: {
-    fontSize: 9,
+    fontSize: 10,
     textAlign: 'center',
     fontWeight: 'bold',
     color: '#000000ff',
@@ -279,6 +302,12 @@ const styles = StyleSheet.create({
     height: 160,
     borderRadius: 12,
     alignSelf: 'center',
+    // SOMBRAS
+    shadowColor: '#000000ff',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 6,
   },
 
   titulo: {
@@ -290,7 +319,7 @@ const styles = StyleSheet.create({
   },
   sombraBarrasuperior: {
     position: 'absolute',
-    top: 110,
+    top: 120,
     left: 0,
     right: 0,
     height: 3,

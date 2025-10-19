@@ -5,9 +5,9 @@ import { StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { Searchbar } from 'react-native-paper';
 import { router } from 'expo-router';
 
+
 export default function Pesquisa() {
   const [searchQuery, setSearchQuery] = useState('');
-
   return (
     <ThemedView style={styles.container}>
       <ThemedView style={styles.containerNav}>
@@ -63,5 +63,6 @@ const styles = StyleSheet.create({
     right: 5,
   },
   botaovolta:{
+    color: '#F0F3F5',
   },
 });
