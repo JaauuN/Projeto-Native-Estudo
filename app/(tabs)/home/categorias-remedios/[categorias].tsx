@@ -18,7 +18,7 @@ return (
       <View style={styles.sombraBarrasuperior} pointerEvents="none"/>
         <ThemedView style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
-            <ThemedText style={styles.botaovolta}><MaterialIcons name="arrow-back" size={40}/></ThemedText>
+            <MaterialIcons name="arrow-back" size={40} style={styles.botaovolta}/>
           </TouchableOpacity>
           <ThemedText style={styles.tituloCategoria}>{categoria}</ThemedText>
       </ThemedView>
@@ -48,21 +48,21 @@ const styles = StyleSheet.create({
     header: {
       width: '100%',
       flexDirection: 'row',
-      paddingTop: 30,
+      paddingTop: 35,
       paddingBottom: 10,
+      paddingLeft: 10,
       alignItems: 'center',
       backgroundColor: '#19535F',
       color: '#F0F3F5',
     },
     botaovolta: {
-      width: 50,
-      height: 50,
-      textAlign: 'center',
-      textAlignVertical: 'center',
+      width: 40,
+      height: 40,
       color: '#F0F3F5',
     },
     tituloCategoria: {
       fontSize: 24,
+      paddingLeft: 5,
       fontWeight: 'bold',
       color: '#F0F3F5',
     },
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
 
     sombraBarrasuperior: {
     position: 'absolute',
-    top: 90,
+    top: 85,
     left: 0,
     right: 0,
     height: 3,

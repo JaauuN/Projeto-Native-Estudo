@@ -59,15 +59,15 @@ export default function Home() {
   return (
 
     <ThemedView style={styles.container}>
-      <View style={styles.sombraBarrasuperior} pointerEvents="none" />
         <ThemedView style={styles.containerNav}>
           <Image source={require('@/assets/images/Cure+.png')} style={styles.logo} />
-          <Searchbar
-            style={[styles.nav, { backgroundColor: '#fff' }]}
+          <TouchableOpacity onPress={telaPesquisa} activeOpacity={1} style={{ width: '90%' }}>
+            <Searchbar style={[styles.nav, { backgroundColor: '#fff' }]}
             placeholder="Busca"
             onChangeText={setSearchQuery}
             value={searchQuery}
             onPress={telaPesquisa}
+            editable={false}
             inputStyle={{
               color: '#000000ff',
               paddingVertical: 0,
@@ -84,9 +84,11 @@ export default function Home() {
               }
             }
           />
+          </TouchableOpacity>
         </ThemedView>
+        <View style={styles.sombraBarrasuperior} pointerEvents="none" />
 
-  <ScrollView directionalLockEnabled={true}>
+  <ScrollView directionalLockEnabled={true} style={{ zIndex: 1 }}>
         <View style={styles.carouselContainer}>
           {/*https://rn-carousel.dev/usage*/}
           <Carousel
@@ -115,7 +117,7 @@ export default function Home() {
           />
         </View>
         
-        <ThemedView style={styles.containerContent}>
+        <ThemedView style={[styles.containerContent, { backgroundColor: 'transparent' }]}>
           <ThemedText style={styles.titulo}>Lojas Parceiras</ThemedText>
           <FlatList
             data={lojas}
@@ -124,7 +126,7 @@ export default function Home() {
             renderItem={({ item }) => (
                  <TouchableOpacity style={[styles.lojasContainer]}>
                     <View style={[styles.imageContainer, item.id === '6' && styles.lojaespecial]}>
-                      <Image source={item.image} style={styles.lojasImage} resizeMode='center'/>
+                      <Image source={item.image} style={styles.lojasImage} resizeMode='contain'/>
                     </View>
                   <ThemedText style={styles.lojasTitle}>{item.title}</ThemedText>
                 </TouchableOpacity>
@@ -133,12 +135,13 @@ export default function Home() {
           />
         </ThemedView>
 
-        <ThemedView style={styles.containerContent}>
+        <ThemedView style={[styles.containerContent, { backgroundColor: 'transparent' }]}>
           <ThemedText style={styles.titulo}>Categorias</ThemedText>
           <FlatList
             data={categorias}
             keyExtractor={item => item.id}
             horizontal
+            scrollEnabled={false}
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.containerCategoria}
@@ -151,7 +154,8 @@ export default function Home() {
             contentContainerStyle={{ alignItems: 'center', justifyContent: 'space-between', width: '100%',padding:5 }}
           />
         </ThemedView>
-        <ThemedView style={styles.containerContent}>
+
+        <ThemedView style={[styles.containerContent, { backgroundColor: 'transparent' }]}>
           <View style={styles.sobrenosContainer}>
             <Image source={require('@/assets/images/Promo-G.png')} style={styles.sobrenosImage} resizeMode="cover"/>
           </View>
@@ -166,22 +170,21 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    
   },
   containerContent: {
     width: '100%',
     marginBottom: 20,
   },
   containerNav: {
-    backgroundColor: '#19535F',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#19535F',
     paddingTop: 60,
     paddingBottom: 20,
   },
   nav: {
     height: 40,
-    width: '90%',
+    width: '100%',
     borderRadius: 25,
     backgroundColor: '#000000ff',
   },
@@ -285,7 +288,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   tituloCategoria: {
-    fontSize: 10,
+    fontSize: 9,
     textAlign: 'center',
     fontWeight: 'bold',
     color: '#000000ff',
