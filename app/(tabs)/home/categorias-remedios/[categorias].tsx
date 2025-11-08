@@ -31,7 +31,7 @@ return (
           <ThemedView style={styles.produtoContainer}>
               <Image source={item.image} style={styles.produtoImage} />
               <ThemedText style={styles.produtoTitle}>{item.title}</ThemedText>
-              <TouchableOpacity style={styles.detalhesContainer} onPress={() => router.push({pathname:"/home/categorias-remedios/[detalhesProdutos]",params: item})}>
+              <TouchableOpacity style={styles.detalhesContainer} onPress={() => router.push({pathname: `/home/categorias-remedios/detalhesprodutos/${item.id}` , params: item})}>
                 <Text style={styles.detalhesProduto}>Ver Detalhes</Text>
               </TouchableOpacity>
           </ThemedView>

@@ -33,6 +33,14 @@ export default function StackHome (){
           headerShown: false,
         }}
       />
+      <Stack.Screen 
+        name="categorias-remedios/detalhesprodutos/[detalhesProdutos]" 
+        options={{
+          animation: 'fade',
+          animationTypeForReplace: 'push',
+          headerShown: false,
+        }}
+      />
     </Stack>
   )
 }
