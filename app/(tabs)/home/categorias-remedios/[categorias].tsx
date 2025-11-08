@@ -1,8 +1,7 @@
 import React from 'react';
-import { router } from 'expo-router';
-import { FlatList, StyleSheet, TouchableOpacity, Image, View } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
-import { MaterialIcons } from '@expo/vector-icons';
+import { FlatList, StyleSheet, TouchableOpacity, Image, View, Text } from 'react-native';
+import { useLocalSearchParams, router } from 'expo-router';
+import { AntDesign } from '@expo/vector-icons';
 import { produtos } from '@/app/(tabs)/home/categorias-remedios/produtos';
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
@@ -17,8 +16,8 @@ return (
     <ThemedView style={styles.container}>
       <View style={styles.sombraBarrasuperior} pointerEvents="none"/>
         <ThemedView style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <MaterialIcons name="arrow-back" size={40} style={styles.botaovolta}/>
+          <TouchableOpacity onPress={() => router.back()} style={styles.containerBotao}>
+            <AntDesign name="left" size={30} style={styles.botaovolta}/>
           </TouchableOpacity>
           <ThemedText style={styles.tituloCategoria}>{categoria}</ThemedText>
       </ThemedView>
@@ -29,10 +28,13 @@ return (
         contentContainerStyle={{ padding: 15, gap: 5 }}
         columnWrapperStyle={{ gap: 5 }}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.produtoContainer}>
-               <Image source={item.image} style={styles.produtoImage} />
+          <ThemedView style={styles.produtoContainer}>
+              <Image source={item.image} style={styles.produtoImage} />
               <ThemedText style={styles.produtoTitle}>{item.title}</ThemedText>
-          </TouchableOpacity>
+              <TouchableOpacity style={styles.detalhesContainer} onPress={() => router.push({pathname:"/home/categorias-remedios/[detalhesProdutos]",params: item})}>
+                <Text style={styles.detalhesProduto}>Ver Detalhes</Text>
+              </TouchableOpacity>
+          </ThemedView>
           
         )}
       />
@@ -56,12 +58,17 @@ const styles = StyleSheet.create({
       color: '#F0F3F5',
     },
     botaovolta: {
-      width: 40,
-      height: 40,
       color: '#F0F3F5',
     },
+    containerBotao: {
+      display: 'flex',
+      width: 40,
+      height: 40,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
     tituloCategoria: {
-      fontSize: 24,
+      fontSize: 20,
       paddingLeft: 5,
       fontWeight: 'bold',
       color: '#F0F3F5',
@@ -80,7 +87,6 @@ const styles = StyleSheet.create({
       shadowOpacity: 0.12,
       shadowRadius: 8,
       elevation: 6,
-
     },
     produtoImage: {
       width: '90%',
@@ -89,9 +95,24 @@ const styles = StyleSheet.create({
       marginTop: 10,
     },
     produtoTitle: {
+      fontSize: 14,
       color: '#000000ff',
       marginLeft: 10,
       justifyContent: 'center',
+    },
+    detalhesContainer:{
+      height:35,
+      width:'90%',
+      borderRadius: 20,
+      textAlign: 'center',
+      backgroundColor: '#19535F',
+      justifyContent: 'center',
+      alignItems: 'center',
+      top: 55,
+    },
+     detalhesProduto: {
+      fontSize: 16,
+      color: '#F0F3F5',
     },
 
     sombraBarrasuperior: {
