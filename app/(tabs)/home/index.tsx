@@ -145,7 +145,7 @@ export default function Home() {
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.containerCategoria}
-                onPress={() => router.push(`/home/categorias-remedios/${item.categorias}`)}
+                onPress={() => router.push({pathname: "/home/categorias-remedios/[categorias]", params: {categorias : item.categorias}})}
               >
               <Image source={item.image} style={styles.imagemCategoria} />
               <ThemedText style={styles.tituloCategoria}>{item.title}</ThemedText>

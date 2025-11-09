@@ -3,12 +3,7 @@ import React from 'react';
 
 export default function StackHome (){
   return (
-    <Stack
-      screenOptions={{
-        animation: 'fade',
-        animationTypeForReplace: 'push',
-      }}
-    >
+    <Stack>
       <Stack.Screen 
         name="index"
         options={{
@@ -34,7 +29,7 @@ export default function StackHome (){
         }}
       />
       <Stack.Screen 
-        name="categorias-remedios/detalhesprodutos/[detalhesProdutos]" 
+        name="categorias-remedios/detalhes-produtos/[detalhesProdutos]" 
         options={{
           animation: 'fade',
           animationTypeForReplace: 'push',
