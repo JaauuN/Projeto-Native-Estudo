@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { Dimensions, StyleSheet, TouchableOpacity, FlatList, View, Image, Text } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { StyleSheet, TouchableOpacity, FlatList, View, Image, Text } from 'react-native';
 import { Searchbar } from 'react-native-paper';
 import { router } from 'expo-router';
 import { produtos, Produto } from '@/app/(tabs)/home/categorias-remedios/produtos';
@@ -10,6 +11,8 @@ import { produtos, Produto } from '@/app/(tabs)/home/categorias-remedios/produto
 export default function Pesquisa() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredData, setFilteredData] = useState<Produto[]>([]);
+  const areaSafe = useSafeAreaInsets();
+  
 
   useEffect(() => {
     if (searchQuery.trim() === '') {
@@ -27,10 +30,10 @@ export default function Pesquisa() {
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedView style={styles.containerNav}>
+      <ThemedView style={[styles.containerNav ,{paddingTop: areaSafe.top + 10}]}>
         <Searchbar
           style={[styles.nav, { backgroundColor: '#fff' }]}
-          placeholder="O que você está sentindo?"
+          placeholder="Digite seu sintoma ou remédio."
           onChangeText={setSearchQuery}
           value={searchQuery}
           autoFocus={true}
@@ -51,11 +54,13 @@ export default function Pesquisa() {
           }
         />
         <TouchableOpacity onPress={() => router.back()}>
-          <ThemedText style={styles.botaovolta}>Cancelar</ThemedText>
+          <ThemedText style={styles.botaovolta} >Cancelar</ThemedText>
         </TouchableOpacity>
       </ThemedView>
+      <View style={[styles.sombraBarrasuperior, {top: areaSafe.top + 60 }]} pointerEvents="none" />
       <FlatList
         data={filteredData}
+        style={[{zIndex: 1}]}
         numColumns={2}
         contentContainerStyle={{ padding: 15, gap: 5 }}
         columnWrapperStyle={{ gap: 5 }}
@@ -81,6 +86,14 @@ export default function Pesquisa() {
   );
   
 }
+// Calculo para os itens serem rendizados em colunas de maneira correta
+// baseado na tela do aparelho que esta sendo utilizado durante o uso do app.
+const { width } = Dimensions.get('window');
+const numColunas = 2;
+const padding = 15;
+const gapColunas = 5; 
+const paddingEsquerdoDireito = padding * 2;
+const itemWidth = (width - paddingEsquerdoDireito - gapColunas) / numColunas;
 
 const styles = StyleSheet.create({
 container: { 
@@ -90,8 +103,7 @@ containerNav:{
     backgroundColor: '#19535F',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 40,
-    paddingBottom: 20,
+    paddingBottom: 10,
     flexDirection: 'row',
   },
 nav:{
@@ -106,7 +118,7 @@ botaovolta:{
 },
 
 pesquisaContainer:{
-  width: '50%',
+  width: itemWidth,
   height: 260,
   borderRadius: 10,
   alignItems: 'center',
@@ -124,8 +136,10 @@ pesquisaImage:{
   borderRadius: 10,
   marginTop: 10,
 },
-pesquisaTitle:{},
-  detalhesContainer:{
+pesquisaTitle:{
+
+},
+detalhesContainer:{
   height:35,
   width:'90%',
   borderRadius: 20,
@@ -133,12 +147,23 @@ pesquisaTitle:{},
   backgroundColor: '#19535F',
   justifyContent: 'center',
   alignItems: 'center',
-  top: 55,
-  },
-    detalhesProduto: {
-    fontSize: 16,
-    color: '#F0F3F5',
-  },
+  marginTop: 'auto',
+  marginBottom: 5,
+},
+detalhesProduto: {
+  fontSize: 16,
+  color: '#F0F3F5',
+},
 containerVazio:{},
 textoVazio:{},
+
+sombraBarrasuperior: {
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  height: 3,
+  backgroundColor: '#19535F',
+  opacity: 0.8,
+  zIndex: 1,
+},
 });

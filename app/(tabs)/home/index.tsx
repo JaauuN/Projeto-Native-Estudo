@@ -1,18 +1,14 @@
 import React, { useState } from 'react';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors } from '@/constants/theme';
-
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-
 import { router } from 'expo-router';
-
 import { Dimensions, FlatList, Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Searchbar } from 'react-native-paper';
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSharedValue } from "react-native-reanimated";
 import Carousel, { ICarouselInstance, Pagination, } from "react-native-reanimated-carousel";
-
 
 const width = Dimensions.get('window').width;
 const anuncios = [
@@ -47,6 +43,7 @@ export default function Home() {
   const ref = React.useRef<ICarouselInstance>(null);
   const progress = useSharedValue<number>(0);
   const colorScheme = useColorScheme();
+  const areaSafe = useSafeAreaInsets();
 
   const onPressPagination = (index: number) => {
     ref.current?.scrollTo({
@@ -59,11 +56,11 @@ export default function Home() {
   return (
 
     <ThemedView style={styles.container}>
-        <ThemedView style={styles.containerNav}>
-          <Image source={require('@/assets/images/Cure+.png')} style={styles.logo} />
+        <ThemedView style={[styles.containerNav,{paddingTop: areaSafe.top + 35}]}>
+          <Image source={require('@/assets/images/Cure+.png')} style={[styles.logo, {top: areaSafe.top + 5}]} />
           <TouchableOpacity onPress={telaPesquisa} activeOpacity={1} style={{ width: '90%' }}>
             <Searchbar style={[styles.nav, { backgroundColor: '#fff' }]}
-            placeholder="Busca"
+            placeholder="O que você está sentindo?"
             onChangeText={setSearchQuery}
             value={searchQuery}
             onPress={telaPesquisa}
@@ -86,7 +83,7 @@ export default function Home() {
           />
           </TouchableOpacity>
         </ThemedView>
-        <View style={styles.sombraBarrasuperior} pointerEvents="none" />
+        <View style={[styles.sombraBarrasuperior, {top: areaSafe.top + 85}]} pointerEvents="none" />
 
   <ScrollView directionalLockEnabled={true} style={{ zIndex: 1 }}>
         <View style={styles.carouselContainer}>
@@ -179,8 +176,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#19535F',
-    paddingTop: 60,
-    paddingBottom: 20,
+    paddingBottom: 10,
   },
   nav: {
     height: 40,
@@ -190,11 +186,9 @@ const styles = StyleSheet.create({
   },
   logo: {
     position: 'absolute',
-    top: 30,
     left: 0,
     width: 120,
     height: 25,
-    marginBottom: 15,
   },
   
 
@@ -322,13 +316,12 @@ const styles = StyleSheet.create({
   },
   sombraBarrasuperior: {
     position: 'absolute',
-    top: 120,
     left: 0,
     right: 0,
     height: 3,
     backgroundColor: '#19535F',
     opacity: 0.8,
-    zIndex: 0,
+    zIndex: 1,
   },
 
 }); 

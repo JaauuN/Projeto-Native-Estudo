@@ -1,14 +1,17 @@
-import { StyleSheet, TouchableOpacity, Image, View, Text } from 'react-native';
+import { StyleSheet, TouchableOpacity, Image, View, Text, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AntDesign } from '@expo/vector-icons';
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
 import { produtos } from '@/app/(tabs)/home/categorias-remedios/produtos';
 import { useLocalSearchParams, router } from 'expo-router';
 
+
 export default function DetalhesProdutos(){
   const params = useLocalSearchParams();
   const { detalhesProdutos: produtoId } = params;
   const produto = produtos.find(produto => produto.id === produtoId);
+  const areaSafe = useSafeAreaInsets();
 
   if (!produto) {
     return (
@@ -18,39 +21,47 @@ export default function DetalhesProdutos(){
 
 return(
     <ThemedView style={styles.container}>
-      <ThemedView style={styles.header}>
+      <ThemedView style={[styles.header, {paddingTop: areaSafe.top + 10}]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.containerBotao}>
             <AntDesign name="left" size={30} style={styles.botaovolta}/>
           </TouchableOpacity>
           <ThemedText style={styles.tituloDetalhe}>Detalhes</ThemedText>
       </ThemedView>
-      <View style={styles.sombraBarrasuperior} pointerEvents="none"/>
+      <View style={[styles.sombraBarrasuperior, {top: areaSafe.top + 60}]} pointerEvents="none"/>
 
-        <ThemedView style={styles.containerDetalhe}>
-          <ThemedView style={styles.containerProdutoTitulo}>
-            <ThemedText style={styles.tituloproduto}>{produto.title}</ThemedText>
+        <ScrollView>
+          <ThemedView style={styles.containerDetalhe}>
+            <ThemedView style={styles.containerProdutoTitulo}>
+              <ThemedText style={styles.tituloproduto}>{produto.title}</ThemedText>
+            </ThemedView>
+            <Image source={produto.image} style={styles.produtoimage} />
+            <ThemedView style={styles.containerCategoria}>
+              <ThemedView style={styles.containerTexto}>
+                <ThemedText style={styles.textoCategoria}>Categoria:</ThemedText>
+              </ThemedView>
+              <ThemedView style={styles.containerTipo}>
+                <ThemedText style={styles.tipoCategoria}>{produto.categoria}</ThemedText>
+              </ThemedView>
+            </ThemedView>
+            <ThemedView style={styles.containerDescricao}>
+              <ThemedView style={styles.containertextoInicial}>
+                <Text style={styles.textoInicial}>Pode Tratar:</Text>
+              </ThemedView>
+              <ThemedView style={styles.tagswrapper}>
+                {produto.chave.map((item, index) => (
+                  <ThemedView key={index} style={styles.containerTags}>
+                    {/* Isto aqui pega as tags do produto escolhido e coloca a primeira letra maiuscula*/}
+                      <Text style={styles.Tags}>{item.charAt(0).toUpperCase()+item.slice(1)}</Text>
+                  </ThemedView>
+                ))}
+              </ThemedView>
+              <ThemedView style={styles.containertextoInicial}>
+                <Text style={styles.textoInicial}>Descrição:</Text> 
+              </ThemedView>   
+            </ThemedView>
           </ThemedView>
+        </ScrollView>
         
-          <Image source={produto.image} style={styles.produtoimage} />
-          <ThemedView style={styles.containerCategoria}>
-            <ThemedView style={styles.containerTexto}>
-              <ThemedText style={styles.textoCategoria}>Categoria:</ThemedText>
-            </ThemedView>
-            <ThemedView style={styles.containerTipo}>
-              <ThemedText style={styles.tipoCategoria}>{produto.categoria}</ThemedText>
-            </ThemedView>
-          </ThemedView>
-          <ThemedView style={styles.containerDescricao}>
-            <ThemedView style={styles.tagswrapper}>
-              {produto.chave.map((item, index) => (
-                <ThemedView key={index} style={styles.containerTags}>
-                  <Text style={styles.Tags}>{item}</Text>
-                </ThemedView>
-              ))}
-            </ThemedView>    
-          </ThemedView>
-          
-      </ThemedView>
 
     </ThemedView>
 );
@@ -64,7 +75,6 @@ flex: 1,
 header:{
   width: '100%',
   flexDirection: 'row',
-  paddingTop: 35,
   paddingBottom: 10,
   paddingLeft: 10,
   alignItems: 'center',
@@ -162,11 +172,13 @@ tipoCategoria:{
 },
 
 containerDescricao:{
+  display: 'flex',
   width: '90%',
   height: 200,
   marginTop: 10,
   borderRadius: 10,
   padding: 10,
+  gap: 5,
   alignSelf:'center',
   backgroundColor: '#E6E6E6',
   // SOMBRAS
@@ -175,19 +187,41 @@ containerDescricao:{
   shadowOpacity: 0.12,
   shadowRadius: 8,
   elevation: 6,
+  zIndex: 1,
+},
+containertextoInicial:{
+  width: 100,
+  height: 25,
+  backgroundColor: '#19535F',
+  borderRadius: 10,
+  justifyContent: 'center',
+  alignItems: 'center',
+  // SOMBRAS
+  shadowColor: '#000000ff',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.12,
+  shadowRadius: 8,
+  elevation: 6,
+  zIndex: 2
+},
+textoInicial: {
+  color: '#F0F3F5',
+  fontWeight: 'bold',
 },
 tagswrapper:{
-flexDirection: 'row',
-flexWrap: 'wrap',
-gap: 5,
-justifyContent: 'center',
-alignItems: 'center',
-backgroundColor: '#E6E6E6',
-},
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  gap: 5,
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: '#E6E6E6',
+  paddingBottom: 5,
+  paddingTop: 5,
+  },
 containerTags:{
-backgroundColor: '#E6E6E6',
-padding: 3,
-borderRadius: 10,
+  backgroundColor: '#E6E6E6',
+  padding: 3,
+  borderRadius: 10,
 // SOMBRAS
   shadowColor: '#000000ff',
   shadowOffset: { width: 0, height: 4 },
@@ -196,13 +230,12 @@ borderRadius: 10,
   elevation: 6,
 },
 Tags:{
-
+  fontWeight: 'bold',
 },
 
 
 sombraBarrasuperior:{
   position: 'absolute',
-  top: 85,
   left: 0,
   right: 0,
   height: 3,
