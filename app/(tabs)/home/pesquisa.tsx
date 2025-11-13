@@ -137,7 +137,7 @@ pesquisaImage:{
   marginTop: 10,
 },
 pesquisaTitle:{
-
+  color: '#000000ff'
 },
 detalhesContainer:{
   height:35,

@@ -12,10 +12,10 @@ import Carousel, { ICarouselInstance, Pagination, } from "react-native-reanimate
 
 const width = Dimensions.get('window').width;
 const anuncios = [
-  { id: '1', image: require('@/assets/images/react-logo.png') },
-  { id: '2', image: require('@/assets/images/react-logo.png') },
-  { id: '3', image: require('@/assets/images/react-logo.png') },
-  { id: '4', image: require('@/assets/images/react-logo.png') }
+  { id: '1', image: require('@/assets/images/Cure+.png') },
+  { id: '2', image: require('@/assets/images/Cure+.png') },
+  { id: '3', image: require('@/assets/images/Cure+.png') },
+  { id: '4', image: require('@/assets/images/Cure+.png') }
 ];
 
 const lojas = [
@@ -98,9 +98,9 @@ export default function Home() {
             autoPlayInterval={5000}
             mode="parallax"
             onProgressChange={progress}
-            renderItem={({ item }) => (
+            renderItem={() => (
               <View style={styles.anuncioContainer}>
-                <Image source={item.image} style={styles.anuncioImage} resizeMode="contain" />
+                <Image source={require('@/assets/images/vacina.png')} style={styles.anuncioImage} resizeMode="contain" />
               </View>
             )}
           />
