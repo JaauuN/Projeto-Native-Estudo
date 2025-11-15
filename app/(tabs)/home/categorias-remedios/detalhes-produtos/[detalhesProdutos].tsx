@@ -1,11 +1,10 @@
-import { StyleSheet, TouchableOpacity, Image, View, Text, ScrollView } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AntDesign } from '@expo/vector-icons';
-import { ThemedView } from '@/components/themed-view';
-import { ThemedText } from '@/components/themed-text';
 import { produtos } from '@/app/(tabs)/home/categorias-remedios/produtos';
-import { useLocalSearchParams, router } from 'expo-router';
-
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
+import { AntDesign } from '@expo/vector-icons';
+import { router, useLocalSearchParams } from 'expo-router';
+import { Image, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function DetalhesProdutos(){
   const params = useLocalSearchParams();
@@ -21,20 +20,27 @@ export default function DetalhesProdutos(){
 
 return(
     <ThemedView style={styles.container}>
+
       <ThemedView style={[styles.header, {paddingTop: areaSafe.top + 10}]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.containerBotao}>
-            <AntDesign name="left" size={30} style={styles.botaovolta}/>
+            <AntDesign name="left" size={20} style={styles.botaovolta}/>
           </TouchableOpacity>
-          <ThemedText style={styles.tituloDetalhe}>Detalhes</ThemedText>
-      </ThemedView>
-      <View style={[styles.sombraBarrasuperior, {top: areaSafe.top + 60}]} pointerEvents="none"/>
-
-        <ScrollView>
-          <ThemedView style={styles.containerDetalhe}>
-            <ThemedView style={styles.containerProdutoTitulo}>
+          <ThemedView style={styles.containerProdutoTitulo}>
               <ThemedText style={styles.tituloproduto}>{produto.title}</ThemedText>
-            </ThemedView>
-            <Image source={produto.image} style={styles.produtoimage} />
+          </ThemedView>
+      </ThemedView>
+
+        <View style={{flex: 1, backgroundColor: '#19535F'}}>
+          <ScrollView overScrollMode="never" contentContainerStyle={{ flexGrow: 1 }}>
+            <ThemedView style={{ flex: 1 }}>
+              <View style={[styles.sombraBarrasuperior, {marginBottom: 0, backgroundColor: '#19535F'}]} pointerEvents="none"/>
+              <ThemedView style={styles.containerImage}> 
+                <ThemedView style={styles.wrapperImage}>
+                  <Image source={produto.image} style={styles.produtoimage} resizeMode='cover'/>
+                </ThemedView>
+              </ThemedView>
+            
+
             <ThemedView style={styles.containerCategoria}>
               <ThemedView style={styles.containerTexto}>
                 <ThemedText style={styles.textoCategoria}>Categoria:</ThemedText>
@@ -43,6 +49,7 @@ return(
                 <ThemedText style={styles.tipoCategoria}>{produto.categoria}</ThemedText>
               </ThemedView>
             </ThemedView>
+
             <ThemedView style={styles.containerDescricao}>
               <ThemedView style={styles.containertextoInicial}>
                 <Text style={styles.textoInicial}>Pode Tratar:</Text>
@@ -55,12 +62,21 @@ return(
                   </ThemedView>
                 ))}
               </ThemedView>
+
               <ThemedView style={styles.containertextoInicial}>
                 <Text style={styles.textoInicial}>Descrição:</Text> 
               </ThemedView>   
+              <ThemedView style={styles.descricaoProduto}>
+                <Text style={styles.descricaotexto}>{produto.descricao}</Text>
+              </ThemedView>
+
+              <TouchableOpacity style={styles.containerbula} onPress={() => Linking.openURL(produto.bula)}>
+                <Text style={styles.textoInicial}>Ver Bula</Text>
+              </TouchableOpacity>
             </ThemedView>
-          </ThemedView>
-        </ScrollView>
+            </ThemedView>
+          </ScrollView>
+        </View>
         
 
     </ThemedView>
@@ -81,31 +97,24 @@ header:{
   backgroundColor: '#19535F',
   color: '#F0F3F5',
 },
-tituloDetalhe:{
-  fontSize: 20,
-  paddingLeft: 5,
-  fontWeight: 'bold',
-  color: '#F0F3F5',
-},
 containerBotao:{
   display: 'flex',
   width: 40,
   height: 40,
   alignItems: 'center',
   justifyContent: 'center',
+  backgroundColor: '#E6E6E6',
+  borderRadius: 50,
 },
 botaovolta:{
-color: '#F0F3F5',
+  color: '#000000ff',
 },
 
-containerDetalhe:{
-  top: 10,
-  borderRadius: 20,
-},
 containerProdutoTitulo:{
   left: 10,
-  width: '50%',
   height: 40,
+  paddingRight: 10,
+  paddingLeft: 10,
   backgroundColor: '#E6E6E6',
   borderRadius: 10,
   justifyContent: 'center',
@@ -120,14 +129,32 @@ containerProdutoTitulo:{
 tituloproduto: {
   color: '#000000ff',
   fontWeight: 'bold',
+  alignSelf: 'center',
 },
-produtoimage:{
-  width: '90%',
-  height: '35%',
-  borderRadius: 10,
+containerImage:{
+  width: '100%',
+  marginBottom: 10,
+  borderBottomRightRadius: 20,
+  borderBottomLeftRadius: 20,
+  alignItems: 'center',
+  backgroundColor: '#E6E6E6',
+  // SOMBRAS
+  shadowColor: '#000000ff',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.12,
+  shadowRadius: 8,
+  elevation: 6,
+},
+wrapperImage:{
+  width: '60%',
+  alignItems: 'center',
   marginTop: 10,
   marginBottom: 10,
-  alignSelf: 'center',
+  backgroundColor: '#E6E6E6',
+},
+produtoimage:{
+  width: 120,
+  height: 180,
 },
 containerCategoria:{
   left: 10,
@@ -174,7 +201,6 @@ tipoCategoria:{
 containerDescricao:{
   display: 'flex',
   width: '90%',
-  height: 200,
   marginTop: 10,
   borderRadius: 10,
   padding: 10,
@@ -232,16 +258,39 @@ containerTags:{
 Tags:{
   fontWeight: 'bold',
 },
-
-
-sombraBarrasuperior:{
-  position: 'absolute',
-  left: 0,
-  right: 0,
-  height: 3,
-  backgroundColor: '#19535F',
-  opacity: 0.8,
-  zIndex: 1,
+descricaoProduto:{
+  backgroundColor: '#E6E6E6',
+  padding: 10,
+  borderRadius: 10,
 },
+descricaotexto:{
+  color: '#000000ff',
+  fontWeight: 'bold',
+},
+containerbula:{
+  alignSelf: 'center',
+  width: 100,
+  height: 40,
+  backgroundColor: '#19535F',
+  borderRadius: 10,
+  justifyContent: 'center',
+  alignItems: 'center',
+  // SOMBRAS
+  shadowColor: '#000000ff',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.12,
+  shadowRadius: 8,
+  elevation: 6,
+  zIndex: 2
+},
+sombraBarrasuperior: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 3,
+    backgroundColor: '#19535F',
+    opacity: 0.7,
+    zIndex: 1,
+  },
 
 })

@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { Colors } from '@/constants/theme';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AntDesign } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Dimensions, FlatList, Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Searchbar } from 'react-native-paper';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React, { useState } from 'react';
+import { Dimensions, FlatList, Image, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { TextInput ,Portal ,Modal, Searchbar } from 'react-native-paper';
 import { useSharedValue } from "react-native-reanimated";
 import Carousel, { ICarouselInstance, Pagination, } from "react-native-reanimated-carousel";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const width = Dimensions.get('window').width;
 const anuncios = [
@@ -19,12 +20,12 @@ const anuncios = [
 ];
 
 const lojas = [
-  { id: '1', title: 'Pague Menos',image: require('@/assets/farmacias/pague-menos.png') },
-  { id: '2', title: 'Drogasil',image: require('@/assets/farmacias/drogasil.png') },
-  { id: '3', title: 'Extrafarma',image: require('@/assets/farmacias/extrafarma.png') },
-  { id: '4', title: 'Farmácia Popular',image: require('@/assets/farmacias/popular.png') },
-  { id: '5', title: 'Economia Farma',image: require('@/assets/farmacias/economia.png') },
-  { id: '6', title: 'Farmacenter',image: require('@/assets/farmacias/farmacenter.png') },
+  { id: '1', title: 'Pague Menos', image: require('@/assets/farmacias/pague-menos.png'), site: 'https://www.paguemenos.com.br/', cep: '60000-000' },
+  { id: '2', title: 'Drogasil', image: require('@/assets/farmacias/drogasil.png'), site: 'https://www.drogasil.com.br/', cep: '60010-000' },
+  { id: '3', title: 'Extrafarma', image: require('@/assets/farmacias/extrafarma.png'), site: 'https://www.extrafarma.com.br/?srsltid=AfmBOopto7RP-HOB23SywEKpZY9ZMUT9ScvPzjaf1kA3T4SfcaYCS72x', cep: '60020-000' },
+  { id: '4', title: 'Economia Farma', image: require('@/assets/farmacias/economia.png'), site: 'https://www.economiafarma.com.br/', cep: '60030-000' },
+  { id: '5', title: 'Farmácia Popular', image: require('@/assets/farmacias/popular.png'), site: 'https://www.gov.br/saude/pt-br/composicao/sectics/farmacia-popular', cep: '60040-000' },
+  { id: '6', title: 'Farmacenter', image: require('@/assets/farmacias/farmacenter.png'), site: 'https://www.instagram.com/farmacenterbaturite_/', cep: '62760-000' },
 ];
 
 const categorias = [
@@ -40,6 +41,11 @@ const telaPesquisa = () => {
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [cep, setCep] = useState('');
+  const [cepModalVisible, setModalVisible] = useState(false);
+  const showModal = () => setModalVisible(true);
+  const hideModal = () => setModalVisible(false);
+  const [lojasProximas, setLojasProximas] = useState(lojas);
   const ref = React.useRef<ICarouselInstance>(null);
   const progress = useSharedValue<number>(0);
   const colorScheme = useColorScheme();
@@ -55,8 +61,8 @@ export default function Home() {
 
   return (
 
-    <ThemedView style={styles.container}>
-        <ThemedView style={[styles.containerNav,{paddingTop: areaSafe.top + 35}]}>
+  <ThemedView style={styles.container}>
+      <ThemedView style={[styles.containerNav,{paddingTop: areaSafe.top + 45}]}>
           <Image source={require('@/assets/images/Cure+.png')} style={[styles.logo, {top: areaSafe.top + 5}]} />
           <TouchableOpacity onPress={telaPesquisa} activeOpacity={1} style={{ width: '90%' }}>
             <Searchbar style={[styles.nav, { backgroundColor: '#fff' }]}
@@ -82,10 +88,34 @@ export default function Home() {
             }
           />
           </TouchableOpacity>
-        </ThemedView>
-        <View style={[styles.sombraBarrasuperior, {top: areaSafe.top + 85}]} pointerEvents="none" />
-
-  <ScrollView directionalLockEnabled={true} style={{ zIndex: 1 }}>
+      </ThemedView>
+      <View style={[styles.containerCep,{top: areaSafe.top + 90}]}>
+        <TouchableOpacity style={styles.wrapperCep} onPress={showModal}>
+            <AntDesign name="environment" size={18} color="#F0F3F5" style={{ marginRight: 5 }} />
+            <Text style={styles.textoCep}>Insira seu CEP aqui</Text>
+            <AntDesign name="right" size={12} color="#F0F3F5" style={{ marginLeft: 5 }} />
+        </TouchableOpacity>
+      </View>
+      <Portal>
+        <Modal visible={cepModalVisible} onDismiss={hideModal} >
+          <View style={styles.containerModal}>
+            <Text style={styles.textoModal} >Insira seu CEP</Text>
+            <TextInput 
+                value={cep} 
+                mode='outlined'
+                activeOutlineColor='transparent'
+                onChangeText={cep => setCep(cep)}
+                autoFocus={true}
+                textColor='#000000ff'
+                selectionColor='#000000ff'
+                style={styles.inputCep}
+              />
+          </View>
+        </Modal>
+      </Portal>
+      
+          
+      <ScrollView directionalLockEnabled={true} style={{ zIndex: 1 }} contentContainerStyle={{ paddingTop: 20 }}>
         <View style={styles.carouselContainer}>
           {/*https://rn-carousel.dev/usage*/}
           <Carousel
@@ -117,11 +147,11 @@ export default function Home() {
         <ThemedView style={[styles.containerContent, { backgroundColor: 'transparent' }]}>
           <ThemedText style={styles.titulo}>Lojas Parceiras</ThemedText>
           <FlatList
-            data={lojas}
+            data={lojasProximas}
             keyExtractor={item => item.id}
             horizontal
             renderItem={({ item }) => (
-                 <TouchableOpacity style={[styles.lojasContainer]}>
+                 <TouchableOpacity style={[styles.lojasContainer]} onPress={() => Linking.openURL(item.site)}>
                     <View style={[styles.imageContainer, item.id === '6' && styles.lojaespecial]}>
                       <Image source={item.image} style={styles.lojasImage} resizeMode='contain'/>
                     </View>
@@ -159,37 +189,85 @@ export default function Home() {
         </ThemedView>
       </ScrollView>
 
-    </ThemedView>
+  </ThemedView>
   );
 
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+container: {
+  flex: 1,
   },
-  containerContent: {
-    width: '100%',
-    marginBottom: 20,
+containerContent: {
+  width: '100%',
+  marginBottom: 20,
   },
-  containerNav: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#19535F',
-    paddingBottom: 10,
+logo: {
+  position: 'absolute',
+  left: 0,
+  width: 120,
+  height: 25,
   },
-  nav: {
-    height: 40,
-    width: '100%',
-    borderRadius: 25,
-    backgroundColor: '#000000ff',
+containerNav: {
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: '#19535F',
+  paddingBottom: 10,
   },
-  logo: {
-    position: 'absolute',
-    left: 0,
-    width: 120,
-    height: 25,
+nav: {
+  height: 40,
+  width: '100%',
+  borderRadius: 25,
+  backgroundColor: '#000000ff',
   },
+containerCep: {
+  position: 'absolute',
+  height: 30,
+  width: '100%',
+  paddingLeft: 15,
+  padding: 5,
+  backgroundColor: '#19535F',
+  borderBottomRightRadius: 20,
+  borderBottomLeftRadius: 20,
+  zIndex: 2,
+},
+wrapperCep: {
+  flexDirection: 'row',
+  alignItems: 'center',
+},
+textoCep: {
+  color: '#F0F3F5',
+  fontWeight: 'bold',
+  alignSelf: 'center'
+},
+containerModal:{
+  position: 'absolute',
+  height: 130,
+  width: '80%',
+  borderRadius: 20,
+  padding: 15,
+  bottom: 10,
+  alignSelf: 'center',
+  backgroundColor: '#19535F',
+  // SOMBRAS
+    shadowColor: '#E6E6E6',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+},
+textoModal: {
+  color: '#F0F3F5',
+  fontSize: 24,
+  fontWeight: 'bold',
+  borderBottomColor: '#F0F3F5',
+  borderBottomWidth: 2,
+},
+inputCep: {
+  backgroundColor: '#E6E6E6',
+  marginTop: 'auto',
+},
+
   
 
   carouselContainer: {
@@ -274,7 +352,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 8,
-    elevation: 6,
+    elevation: 5,
   },
   imagemCategoria: {
     width: 50,
@@ -306,7 +384,6 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 6,
   },
-
   titulo: {
     fontSize: 21,
     fontWeight: 'bold',
@@ -314,14 +391,16 @@ const styles = StyleSheet.create({
     left: 5,
 
   },
+
+
   sombraBarrasuperior: {
-    position: 'absolute',
     left: 0,
     right: 0,
     height: 3,
     backgroundColor: '#19535F',
-    opacity: 0.8,
+    opacity: 0.7,
     zIndex: 1,
   },
+
 
 }); 

@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Searchbar } from 'react-native-paper';
+import { AntDesign } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { produtos, Produto } from '@/app/(tabs)/home/categorias-remedios/produtos';
 
@@ -31,8 +32,11 @@ export default function Pesquisa() {
   return (
     <ThemedView style={styles.container}>
       <ThemedView style={[styles.containerNav ,{paddingTop: areaSafe.top + 10}]}>
+        <TouchableOpacity onPress={() => router.back() } style={styles.containerBotao}>
+          <AntDesign name="left" size={20} style={styles.botaovolta} />
+        </TouchableOpacity>
         <Searchbar
-          style={[styles.nav, { backgroundColor: '#fff' }]}
+          style={[styles.nav, { backgroundColor: '#E6E6E6' }]}
           placeholder="Digite seu sintoma ou remédio."
           onChangeText={setSearchQuery}
           value={searchQuery}
@@ -53,11 +57,8 @@ export default function Pesquisa() {
             }
           }
         />
-        <TouchableOpacity onPress={() => router.back()}>
-          <ThemedText style={styles.botaovolta} >Cancelar</ThemedText>
-        </TouchableOpacity>
       </ThemedView>
-      <View style={[styles.sombraBarrasuperior, {top: areaSafe.top + 60 }]} pointerEvents="none" />
+      <View style={styles.sombraBarrasuperior} pointerEvents="none" />
       <FlatList
         data={filteredData}
         style={[{zIndex: 1}]}
@@ -68,7 +69,9 @@ export default function Pesquisa() {
         renderItem={
           ({ item }: { item: Produto }) => (
             <ThemedView style={styles.pesquisaContainer}>
-              <Image source={item.image} style={styles.pesquisaImage} />
+              <ThemedView style={styles.containerImage}>
+                <Image source={item.image} style={styles.pesquisaImage} resizeMode='contain' />
+              </ThemedView>
               <ThemedText style={styles.pesquisaTitle}>{item.title}</ThemedText>
               <TouchableOpacity style={styles.detalhesContainer} onPress={() => router.push({pathname: "/home/categorias-remedios/detalhes-produtos/[detalhesProdutos]" , params: {detalhesProdutos : item.id}})}>
                   <Text style={styles.detalhesProduto}>Ver Detalhes</Text>
@@ -78,7 +81,7 @@ export default function Pesquisa() {
         }
         ListEmptyComponent={() => (
            <View style={styles.containerVazio}>
-                {searchQuery.trim() !== '' && (<ThemedText style={styles.textoVazio}>Nenhum resultado encontrado para "{searchQuery}"</ThemedText>)}
+                <Text style={styles.textoVazio}>Nenhum resultado encontrado</Text>
           </View>
         )}
       />
@@ -97,7 +100,7 @@ const itemWidth = (width - paddingEsquerdoDireito - gapColunas) / numColunas;
 
 const styles = StyleSheet.create({
 container: { 
-    flex: 1, 
+    flex: 1,
   },
 containerNav:{
     backgroundColor: '#19535F',
@@ -105,6 +108,7 @@ containerNav:{
     alignItems: 'center',
     paddingBottom: 10,
     flexDirection: 'row',
+    gap: 10,
   },
 nav:{
   height: 40,
@@ -113,13 +117,21 @@ nav:{
   backgroundColor: '#000000ff',
   right: 5,
 },
+containerBotao:{
+  width: 40,
+  height: 40,
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: '#E6E6E6',
+  borderRadius: 50,
+},
 botaovolta:{
-  color: '#F0F3F5',
+  color: '#000000ff',
 },
 
 pesquisaContainer:{
   width: itemWidth,
-  height: 260,
+  height: 240,
   borderRadius: 10,
   alignItems: 'center',
   backgroundColor: '#E6E6E6',
@@ -129,15 +141,27 @@ pesquisaContainer:{
   shadowOpacity: 0.12,
   shadowRadius: 8,
   elevation: 6,
+  zIndex: 1,
 },
-pesquisaImage:{
+containerImage:{
   width: '90%',
-  height: '50%',
   borderRadius: 10,
   marginTop: 10,
+  padding: 10,
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: 'transparent',
+},
+pesquisaImage:{
+  width: 120,
+  height: 120,
 },
 pesquisaTitle:{
-  color: '#000000ff'
+  fontSize: 14,
+  alignSelf: 'center',
+  color: '#000000ff',
+  marginLeft: 10,
+  fontWeight: 'bold',
 },
 detalhesContainer:{
   height:35,
@@ -154,16 +178,26 @@ detalhesProduto: {
   fontSize: 16,
   color: '#F0F3F5',
 },
-containerVazio:{},
-textoVazio:{},
+containerVazio:{
+  height: 40,
+  width:'70%',
+  borderRadius: 20,
+  marginTop: 10,
+  alignSelf: 'center',
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: '#19535F',
+},
+textoVazio:{
+  color: '#F0F3F5',
+  fontWeight: 'bold',
+},
 
 sombraBarrasuperior: {
-  position: 'absolute',
   left: 0,
   right: 0,
   height: 3,
   backgroundColor: '#19535F',
-  opacity: 0.8,
-  zIndex: 1,
+  opacity: 0.7,
 },
 });

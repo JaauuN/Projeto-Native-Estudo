@@ -18,21 +18,23 @@ return (
     <ThemedView style={styles.container}>
         <ThemedView style={[styles.header,{paddingTop: areaSafe.top + 10}]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.containerBotao}>
-            <AntDesign name="left" size={30} style={styles.botaovolta}/>
+            <AntDesign name="left" size={20} style={styles.botaovolta}/>
           </TouchableOpacity>
           <ThemedText style={styles.tituloCategoria}>{categoria}</ThemedText>
       </ThemedView>
-      <View style={[styles.sombraBarrasuperior, {top: areaSafe.top + 60}]} pointerEvents="none"/>
+      <View style={styles.sombraBarrasuperior} pointerEvents="none"/>
+
       <FlatList
         data={produtos.filter(item => categoria === 'Tudo' || item.categoria === categoria)}
         keyExtractor={item => item.id}
         numColumns={2}
         contentContainerStyle={{ padding: 15, gap: 5 }}
         columnWrapperStyle={{ gap: 5 }}
-        style={[{zIndex: 1}]}
         renderItem={({ item }) => (
           <ThemedView style={styles.produtoContainer}>
-              <Image source={item.image} style={styles.produtoImage} />
+            <ThemedView style={styles.containerImage}>
+              <Image source={item.image} style={styles.produtoImage} resizeMode='contain' />
+            </ThemedView>
               <ThemedText style={styles.produtoTitle}>{item.title}</ThemedText>
               <TouchableOpacity style={styles.botaodetalhes} onPress={() => router.push({pathname: "/home/categorias-remedios/detalhes-produtos/[detalhesProdutos]" , params: {detalhesProdutos : item.id}})}>
                 <Text style={styles.detalhesProduto}>Ver Detalhes</Text>
@@ -68,7 +70,7 @@ header: {
   color: '#F0F3F5',
 },
 botaovolta: {
-  color: '#F0F3F5',
+  color: '#000000ff',
 },
 containerBotao: {
   display: 'flex',
@@ -76,17 +78,19 @@ containerBotao: {
   height: 40,
   alignItems: 'center',
   justifyContent: 'center',
+  backgroundColor: '#E6E6E6',
+  borderRadius: 50,
 },
 tituloCategoria: {
   fontSize: 20,
-  paddingLeft: 5,
+  paddingLeft: 10,
   fontWeight: 'bold',
   color: '#F0F3F5',
 },
 
 produtoContainer: {
   width: itemWidth,
-  height: 260,
+  height: 240,
   borderRadius: 10,
   alignItems: 'center',
   backgroundColor: '#E6E6E6',
@@ -97,17 +101,25 @@ produtoContainer: {
   shadowRadius: 8,
   elevation: 6,
 },
-produtoImage: {
+containerImage: {
   width: '90%',
-  height: '50%',
   borderRadius: 10,
   marginTop: 10,
+  padding: 10,
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: 'transparent', 
+},
+produtoImage: {
+  width: 120,
+  height: 120,
 },
 produtoTitle: {
   fontSize: 14,
+  alignSelf: 'center',
   color: '#000000ff',
   marginLeft: 10,
-  justifyContent: 'center',
+  fontWeight: 'bold',
 },
 botaodetalhes:{
   height:35,
@@ -126,14 +138,11 @@ detalhesProduto: {
 },
 
 sombraBarrasuperior: {
-  position: 'absolute',
-  top: 85,
   left: 0,
   right: 0,
   height: 3,
   backgroundColor: '#19535F',
-  opacity: 0.8,
-  zIndex: 0,
+  opacity: 0.7,
 },
 
-  });
+});
