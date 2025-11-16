@@ -1,0 +1,40 @@
+// services/firebase.js
+import { initializeApp } from "firebase/app";
+import { getAuth, signInAnonymously } from "firebase/auth";
+import {
+    addDoc,
+    collection,
+    doc,
+    getFirestore,
+    onSnapshot,
+    orderBy,
+    query,
+    serverTimestamp,
+    setDoc,
+    where
+} from "firebase/firestore";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD09cnBAlPfmAEJmoNY2W8XM3M3NrkrmEo",
+  authDomain: "authentication-45879.firebaseapp.com",
+  projectId: "authentication-45879",
+  storageBucket: "authentication-45879.firebasestorage.app",
+  messagingSenderId: "731223954836",
+  appId: "1:731223954836:web:95779fe1aebf8bc4312b81",
+  measurementId: "G-Y6D4V0Q68J"
+};
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+
+// Login anonimo e retorna userId
+export async function ensureAnonymousAuth() {
+  if (!auth.currentUser) {
+    const cred = await signInAnonymously(auth);
+    return cred.user.uid;
+  }
+  return auth.currentUser.uid;
+}
+
+// Utilitarios Firestore
+export { addDoc, collection, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc, where };
