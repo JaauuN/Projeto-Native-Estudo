@@ -2,11 +2,14 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { auth, db } from '@/services/firebase';
 import { AntDesign } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
 import { Dimensions, FlatList, Image, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { TextInput ,Portal ,Modal, Searchbar } from 'react-native-paper';
+import { Modal, Portal, Searchbar, TextInput } from 'react-native-paper';
 import { useSharedValue } from "react-native-reanimated";
 import Carousel, { ICarouselInstance, Pagination, } from "react-native-reanimated-carousel";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -41,22 +44,105 @@ const telaPesquisa = () => {
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
+  // Parte que é usada para o CEP
   const [cep, setCep] = useState('');
+  const [tempCep, setTempCep] = useState('');
+  const [endereco, setEndereco] = useState('');
+  const [cidade, setCidade] = useState('');
+  const [estado, setEstado] = useState('');
   const [cepModalVisible, setModalVisible] = useState(false);
   const showModal = () => setModalVisible(true);
   const hideModal = () => setModalVisible(false);
+
   const [lojasProximas, setLojasProximas] = useState(lojas);
   const ref = React.useRef<ICarouselInstance>(null);
   const progress = useSharedValue<number>(0);
   const colorScheme = useColorScheme();
   const areaSafe = useSafeAreaInsets();
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const docRef = doc(db, 'usuarios', user.uid);
+          const docSnap = await getDoc(docRef);
+          
+          if (docSnap.exists()) {
+            const dados = docSnap.data();
+            const cepUsuario = dados.endereco || '';
+            if (cepUsuario && cepUsuario.length === 8) {
+              setTempCep(cepUsuario);
+              setCep(cepUsuario);
+              await buscarEndereco(cepUsuario);
+            }
+          } else {
+            const empresaRef = doc(db, 'empresas', user.uid);
+            const empresaSnap = await getDoc(empresaRef);
+            
+            if (empresaSnap.exists()) {
+              const dados = empresaSnap.data();
+              const cepEmpresa = dados.endereco || '';
+              if (cepEmpresa && cepEmpresa.length === 8) {
+                setTempCep(cepEmpresa);
+                setCep(cepEmpresa);
+                await buscarEndereco(cepEmpresa);
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Erro ao buscar CEP do usuário:', error);
+        }
+      } else {
+         // se o usuario deslogar o cep dele é limpo
+        setCep('');
+        setTempCep('');
+        setEndereco('');
+        setCidade('');
+        setEstado('');
+      }
+    });
+    
+    return unsubscribe;
+  }, []);
+
   const onPressPagination = (index: number) => {
     ref.current?.scrollTo({
       count: index - progress.value,
       animated: true,
     });
+  };
 
+  const buscarEndereco = async (tempCep : string) => {  
+    if (tempCep.length !== 8) {
+      alert('CEP inválido');
+      return;
+    }
+    const resposta = await fetch(`https://viacep.com.br/ws/${tempCep}/json/`);
+    const dados = await resposta.json();
+
+    console.log(dados.logradouro);
+    console.log(dados.localidade);  
+    console.log(dados.uf);
+
+    setEndereco(dados.logradouro);
+    setCidade(dados.localidade);
+    setEstado(dados.uf);
+    
+  };
+  const confirmarCep = async () => {
+    if (!tempCep.trim()) {
+      // Se digitar nada volta ao texto padrão
+      setCep('');
+      setEndereco('');
+      setCidade('');
+      setEstado('');
+      hideModal();
+      return;
+    }
+
+    setCep(tempCep);
+    await buscarEndereco(tempCep);
+    hideModal(); 
   };
 
   return (
@@ -92,30 +178,34 @@ export default function Home() {
       <View style={[styles.containerCep,{top: areaSafe.top + 90}]}>
         <TouchableOpacity style={styles.wrapperCep} onPress={showModal}>
             <AntDesign name="environment" size={18} color="#F0F3F5" style={{ marginRight: 5 }} />
-            <Text style={styles.textoCep}>Insira seu CEP aqui</Text>
+            <Text style={styles.textoCep}>{cidade ? `${endereco}, ${cidade}-${estado}` : 'Insira seu CEP aqui'}</Text>
             <AntDesign name="right" size={12} color="#F0F3F5" style={{ marginLeft: 5 }} />
         </TouchableOpacity>
       </View>
+
       <Portal>
         <Modal visible={cepModalVisible} onDismiss={hideModal} >
           <View style={styles.containerModal}>
             <Text style={styles.textoModal} >Insira seu CEP</Text>
             <TextInput 
-                value={cep} 
+                value={tempCep} 
                 mode='outlined'
                 activeOutlineColor='transparent'
-                onChangeText={cep => setCep(cep)}
+                onChangeText={text => setTempCep(text)}
                 autoFocus={true}
                 textColor='#000000ff'
                 selectionColor='#000000ff'
                 style={styles.inputCep}
               />
+              <TouchableOpacity onPress={confirmarCep} style={styles.containerBotaoConfirmar}>
+                <Text style={styles.textoConfirmar}>Confirmar</Text>
+              </TouchableOpacity>
           </View>
         </Modal>
       </Portal>
       
           
-      <ScrollView directionalLockEnabled={true} style={{ zIndex: 1 }} contentContainerStyle={{ paddingTop: 20 }}>
+      <ScrollView directionalLockEnabled={true} style={{ zIndex: 1 }} contentContainerStyle={{ paddingTop: 20 } } showsVerticalScrollIndicator={false}>
         <View style={styles.carouselContainer}>
           {/*https://rn-carousel.dev/usage*/}
           <Carousel
@@ -242,11 +332,10 @@ textoCep: {
 },
 containerModal:{
   position: 'absolute',
-  height: 130,
   width: '80%',
   borderRadius: 20,
   padding: 15,
-  bottom: 10,
+  
   alignSelf: 'center',
   backgroundColor: '#19535F',
   // SOMBRAS
@@ -265,142 +354,157 @@ textoModal: {
 },
 inputCep: {
   backgroundColor: '#E6E6E6',
-  marginTop: 'auto',
+  marginTop: 10,
+},
+containerBotaoConfirmar:{
+  height: 40,
+  width: '100%',
+  borderRadius: 20,
+  backgroundColor: '#E6E6E6',
+  marginTop: 10,
+  justifyContent: 'center',
+  
+},
+textoConfirmar: {
+  color: '#19535F',
+  fontWeight: 'bold',
+  alignSelf: 'center',
 },
 
+
   
 
-  carouselContainer: {
-    alignItems: 'center',
-  },
-  anuncioContainer: {
-    width: '100%',
-    flex: 1,
-    borderRadius: 25,
-    backgroundColor: '#E6E6E6',
-    alignSelf: 'center',
-    // SOMBRAS
-    shadowColor: '#000000ff',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  anuncioImage: {
-    width: '100%',
-    height: '100%',
-  },
+carouselContainer: {
+  alignItems: 'center',
+},
+anuncioContainer: {
+  width: '100%',
+  flex: 1,
+  borderRadius: 25,
+  backgroundColor: '#E6E6E6',
+  alignSelf: 'center',
+  // SOMBRAS
+  shadowColor: '#000000ff',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.12,
+  shadowRadius: 8,
+  elevation: 6,
+},
+anuncioImage: {
+  width: '100%',
+  height: '100%',
+},
 
-  lojasContainer: {
-    width: 90, 
-    alignItems: 'center',
-    backgroundColor: '#E6E6E6',
-    padding: 5,
-    gap: 5,
-    borderRadius: 12,
-    marginRight: 10,
-    marginBottom: 10,
-    left: 5,
-    // SOMBRAS
-    shadowColor: '#000000ff',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  imageContainer: {
-    position: 'relative',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 80,
-    width: 80,
-    borderColor: '#dadadaff',
-    borderWidth: 2,
-    borderRadius: 100,
-    overflow: 'hidden',
-    // SOMBRAS
-    shadowColor: '#000000ff',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-  },
-  lojasImage: {
-    position: 'absolute',
-    height: 80,
-    width: 80,
-  },
-  lojasTitle: {
-    fontSize: 12,
-    textAlign: 'center',
-    fontWeight: 'bold',
-    color: '#000000ff',
-  },
-  lojaespecial: {
-    backgroundColor: '#044c9b',
-  },
+lojasContainer: {
+  width: 90, 
+  alignItems: 'center',
+  backgroundColor: '#E6E6E6',
+  padding: 5,
+  gap: 5,
+  borderRadius: 12,
+  marginRight: 10,
+  marginBottom: 10,
+  left: 5,
+  // SOMBRAS
+  shadowColor: '#000000ff',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.12,
+  shadowRadius: 8,
+  elevation: 6,
+},
+imageContainer: {
+  position: 'relative',
+  alignItems: 'center',
+  justifyContent: 'center',
+  height: 80,
+  width: 80,
+  borderColor: '#dadadaff',
+  borderWidth: 2,
+  borderRadius: 100,
+  overflow: 'hidden',
+  // SOMBRAS
+  shadowColor: '#000000ff',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.12,
+  shadowRadius: 8,
+},
+lojasImage: {
+  position: 'absolute',
+  height: 80,
+  width: 80,
+},
+lojasTitle: {
+  fontSize: 12,
+  textAlign: 'center',
+  fontWeight: 'bold',
+  color: '#000000ff',
+},
+lojaespecial: {
+  backgroundColor: '#044c9b',
+},
 
-  containerCategoria: {
-    width: 90,
-    height: 80,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#E6E6E6',
-    borderRadius: 12,
-     marginBottom: 6,
-    // SOMBRAS
-    shadowColor: '#000000ff',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  imagemCategoria: {
-    width: 50,
-    height: 50,
-    overflow: 'hidden',
-  },
-  tituloCategoria: {
-    fontSize: 9,
-    textAlign: 'center',
-    fontWeight: 'bold',
-    color: '#000000ff',
-    
-  },
+containerCategoria: {
+  width: 90,
+  height: 80,
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: '#E6E6E6',
+  borderRadius: 12,
+    marginBottom: 6,
+  // SOMBRAS
+  shadowColor: '#000000ff',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.12,
+  shadowRadius: 8,
+  elevation: 5,
+},
+imagemCategoria: {
+  width: 50,
+  height: 50,
+  overflow: 'hidden',
+},
+tituloCategoria: {
+  fontSize: 9,
+  textAlign: 'center',
+  fontWeight: 'bold',
+  color: '#000000ff',
   
-  sobrenosContainer: {
-    width: '100%',
-    alignItems: 'center',
-    alignSelf: 'center',
-  },
-  sobrenosImage: {
-    width: '95%',
-    height: 160,
-    borderRadius: 12,
-    alignSelf: 'center',
-    // SOMBRAS
-    shadowColor: '#000000ff',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  titulo: {
-    fontSize: 21,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    left: 5,
+},
 
-  },
+sobrenosContainer: {
+  width: '100%',
+  alignItems: 'center',
+  alignSelf: 'center',
+},
+sobrenosImage: {
+  width: '95%',
+  height: 160,
+  borderRadius: 12,
+  alignSelf: 'center',
+  // SOMBRAS
+  shadowColor: '#000000ff',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.12,
+  shadowRadius: 8,
+  elevation: 6,
+},
+titulo: {
+  fontSize: 21,
+  fontWeight: 'bold',
+  marginBottom: 15,
+  left: 5,
+
+},
 
 
-  sombraBarrasuperior: {
-    left: 0,
-    right: 0,
-    height: 3,
-    backgroundColor: '#19535F',
-    opacity: 0.7,
-    zIndex: 1,
-  },
+sombraBarrasuperior: {
+  left: 0,
+  right: 0,
+  height: 3,
+  backgroundColor: '#19535F',
+  opacity: 0.7,
+  zIndex: 1,
+},
 
 
 }); 
